@@ -1,0 +1,6 @@
+interface:
+  display_name: "Organize Files"
+  short_description: "Safely classify, rename, move, clean up, and deduplicate files"
+  default_prompt: "Use $organize-files to inspect my selected folder and preview classification and filename changes before making them."
+policy:
+  allow_implicit_invocation: false

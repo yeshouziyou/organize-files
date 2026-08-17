@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local-only configuration and credentials
+.env
+.env.*
+*.local.json
+*.local.toml
+*.local.yaml
+
+# Task-local evidence and execution artifacts
+inventory.json
+evidence.json
+annotations.json
+decisions.json
+plan.json
+preview.md
+verification.json
+contact-sheets/

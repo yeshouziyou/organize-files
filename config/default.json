@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "name": "public-safe-default",
+  "generated_metadata": {
+    "macos-ds-store": "preview",
+    "macos-appledouble": "preview",
+    "office-lock": "preview"
+  },
+  "empty_directories": "preview",
+  "ordinary_file_deletion": "confirm",
+  "duplicate_deletion": "confirm",
+  "timezone": "system-local",
+  "language": "auto"
+}

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "name": "windows-no-macos",
+  "generated_metadata": {
+    "macos-ds-store": "auto",
+    "macos-appledouble": "auto",
+    "office-lock": "auto-if-safe"
+  },
+  "empty_directories": "auto-if-safe",
+  "ordinary_file_deletion": "confirm",
+  "duplicate_deletion": "confirm"
+}
