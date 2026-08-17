@@ -114,6 +114,7 @@ def update_inventory_after_cleanup(
 
 
 def cleanup_from_inventory(root: Path, inventory_path: Path, apply: bool) -> dict:
+    root = root.resolve(strict=True)
     inventory = json.loads(inventory_path.read_text(encoding="utf-8"))
     if inventory.get("version") != 1:
         raise ValueError("inventory is not a supported version-1 scan")

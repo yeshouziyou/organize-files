@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -23,6 +24,31 @@ def load_module():
 
 
 class CleanupGeneratedMetadataTests(unittest.TestCase):
+    def test_inventory_root_comparison_normalizes_the_selected_root(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            root = base / "root"
+            root.mkdir()
+            (root / ".DS_Store").write_bytes(b"finder")
+            inventory = base / "inventory.json"
+            scanned = subprocess.run(
+                [sys.executable, str(SCAN), str(root), "--inventory-out", str(inventory)],
+                text=True,
+                encoding="utf-8",
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(scanned.returncode, 0, scanned.stderr)
+            previous = Path.cwd()
+            try:
+                os.chdir(base)
+                result = module.cleanup_from_inventory(Path("root"), inventory, apply=False)
+            finally:
+                os.chdir(previous)
+
+            self.assertEqual(result["candidate_count"], 1)
+
     def test_dry_run_requires_saved_inventory(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
