@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import subprocess
 import sys
@@ -20,6 +21,17 @@ def run_script(script: Path, *args: str) -> subprocess.CompletedProcess[str]:
         capture_output=True,
         check=False,
     )
+
+
+def load_evidence_module():
+    script_directory = str(BUILD_EVIDENCE.parent)
+    if script_directory not in sys.path:
+        sys.path.insert(0, script_directory)
+    spec = importlib.util.spec_from_file_location("build_evidence_index", BUILD_EVIDENCE)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
 
 
 def inventory_row(path: Path, root: Path) -> dict:
@@ -75,6 +87,15 @@ def decision(
 
 
 class EvidenceWorkflowTests(unittest.TestCase):
+    def test_compact_text_replaces_unpaired_surrogates_before_utf8_json_output(self):
+        module = load_evidence_module()
+
+        sanitized = module.compact_text("before\ud902after")
+
+        self.assertFalse(any(0xD800 <= ord(character) <= 0xDFFF for character in sanitized))
+        self.assertIn("\ufffd", sanitized)
+        json.dumps({"text": sanitized}, ensure_ascii=False).encode("utf-8")
+
     def test_builder_reuses_inventory_and_requires_visual_evidence_for_every_human_image(self):
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
@@ -512,6 +533,72 @@ class EvidenceWorkflowTests(unittest.TestCase):
                 "风险或说明",
             ):
                 self.assertIn(header, text)
+
+    def test_plan_compiler_rejects_control_characters_in_target_path(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            root = base / "root"
+            root.mkdir()
+            source = root / "old.txt"
+            source.write_text("content", encoding="utf-8")
+            inventory = base / "inventory.json"
+            write_inventory(inventory, root, [source])
+            evidence = base / "evidence.json"
+            evidence.write_text(
+                json.dumps(
+                    {
+                        "version": 1,
+                        "root": str(root.resolve()),
+                        "inventory_path": str(inventory.resolve()),
+                        "files": [
+                            {
+                                **inventory_row(source, root),
+                                "evidence_key": {
+                                    "relative_path": "old.txt",
+                                    "size": source.stat().st_size,
+                                    "mtime_ns": source.stat().st_mtime_ns,
+                                    "reparse_point": False,
+                                },
+                                "file_class": "applicable-human",
+                                "evidence_status": "content-extracted",
+                                "evidence_kind": "document",
+                                "content_excerpt": "content",
+                            }
+                        ],
+                    },
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+            decisions = base / "decisions.json"
+            decisions.write_text(
+                json.dumps(
+                    {
+                        "version": 1,
+                        "rows": [
+                            decision(
+                                "old.txt",
+                                action="移动并改名",
+                                target="归档/20260818_坏\u0003标题.txt",
+                                resolution="changed",
+                            )
+                        ],
+                    },
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+
+            result = run_script(
+                COMPILE_PLAN,
+                str(evidence),
+                str(decisions),
+                "--output",
+                str(base / "plan.json"),
+            )
+
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("control character", result.stderr)
 
     def test_ooxml_member_over_resource_limit_is_not_loaded(self):
         with tempfile.TemporaryDirectory() as tmp:

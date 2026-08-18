@@ -16,7 +16,7 @@ Respond in the user's language unless explicitly requested otherwise. Accept Chi
 
 Verify each selected header version, then read only the named sections:
 
-- Rename: `references/通用文件命名标准.md` `1.6`, sections 1–6 and 10–12.
+- Rename: `references/通用文件命名标准.md` `1.7`, sections 1–6 and 10–12.
 - Classify: `references/通用文件分类标准.md` `1.7`, sections 1–7 and 12–15.
 - Generated metadata found: `references/20260816_自动清理生成元数据规则.md` `1.3`.
 - Post-execution empty directories: `references/20260816_空目录清理规则.md` `1.1`.
@@ -45,7 +45,7 @@ Freeze Skill/reference versions during a directory task; collect rule changes fo
 
 Perform this semantic audit with AI judgment; do not replace it with a complex audit script.
 
-1. Review every top-level group and every extension reported by the scan. Check every evidence row for content-versus-name, content-versus-classification, date support, opaque titles, root scatter, and conflicts. Inspect target directory components as well as filenames: confirm each new or renamed dated folder uses `日期_标题`, review sibling naming consistency, and explicitly report every `legacy_folder_warning`. Reuse the acquired evidence; reopen a file only when evidence is missing, contradictory, or too weak for the proposed decision.
+1. Review every top-level group and every extension reported by the scan. Check every evidence row for content-versus-name, content-versus-classification, date support, opaque titles, root scatter, conflicts, and required subject retention for strong-subject records such as identity documents, resumes, personal proofs, medical records, and completed applications. A personal root or parent folder never proves the document subject. Inspect target directory components as well as filenames: confirm each new or renamed dated folder uses `日期_标题`, review sibling naming consistency, and explicitly report every `legacy_folder_warning`. Reuse the acquired evidence; reopen a file only when evidence is missing, contradictory, or too weak for the proposed decision.
 2. Treat program projects and machine internals as excluded only when project markers, references, or an explicit protected scope provide structural evidence. Never exclude a high-level folder merely because its name contains `资源`, `案例`, or `交付`; never silently ignore an unrecognized extension.
 3. Report: total files, applicable human files, evidence-complete files, already compliant, changed, undecided, and explicit exclusions with reasons. Reconcile exactly: `all files = applicable human files + explicit exclusions` and `applicable human files = compliant + changed + undecided`.
 4. Require evidence coverage to reconcile as well: every applicable human file must have a completed evidence status. Sampling is allowed for deciding how deeply to inspect a coherent bundle, never for omitting files from the evidence index.
