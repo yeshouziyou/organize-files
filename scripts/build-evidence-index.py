@@ -71,6 +71,7 @@ def is_excluded(relative: str, prefixes: list[str]) -> bool:
 
 
 def compact_text(value: str, limit: int = MAX_EXCERPT) -> str:
+    value = re.sub(r"[\ud800-\udfff]", "\ufffd", value)
     value = re.sub(r"\s+", " ", value).strip()
     return value[:limit]
 

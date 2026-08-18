@@ -58,6 +58,11 @@ def relative_path(value: str, label: str) -> str:
     return path.as_posix()
 
 
+def reject_control_characters(value: str, label: str) -> None:
+    if any(ord(character) < 32 or ord(character) == 127 for character in value):
+        raise ValueError(f"{label} contains a control character")
+
+
 def real_path(root: Path, relative: str) -> Path:
     resolved = (root / Path(relative)).resolve(strict=False)
     try:
@@ -260,6 +265,7 @@ def validate(evidence: dict, decisions: dict) -> tuple[Path, list[dict], int, li
             raise ValueError(f"decision row {index}: unsupported file_class {file_class!r}")
 
         target = relative_path(row["target"], f"decision row {index} target")
+        reject_control_characters(target, f"decision row {index} target")
         row = {**row, "target": target}
         source_path = real_path(root, row["source"])
         target_path = real_path(root, target)
